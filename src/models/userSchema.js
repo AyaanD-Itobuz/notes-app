@@ -18,12 +18,13 @@ const userSchema = new mongoose.Schema({
     },
 
     verified : {
-        type : Boolean
-    }
+        type : Boolean,
+        default : false 
+    },
 
-    // token : {
-    //     type : String,
-    // }
+    token : {
+        type : String,
+    }
 });
 
 export default mongoose.model("userDB" , userSchema)
