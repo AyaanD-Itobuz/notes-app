@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 
 
-const sendEmail = async(msg) => 
+const sendEmail = async(msg, to) => 
 {
     const mailTransporter = nodemailer.createTransport ({
         service : 'gmail',
@@ -18,11 +18,11 @@ const sendEmail = async(msg) =>
 
     let mailDetails = {
         // from: process.env.EMAIL_ID,
-        to: 'ayaan@itobuz.com',
+        to: to,
         subject: 'Verification Mail',
         html:`<p>Hello, verify your email address by clicking on this</p>
         <br>
-        <a href="http://localhost:8000/verify/ ${msg}">Click here to verify</a>`
+        <a href="http://localhost:8000/verify/?token=${msg}">Click here to verify</a>`
     };
     
     mailTransporter.sendMail(mailDetails,

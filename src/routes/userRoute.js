@@ -5,7 +5,7 @@ import { verifyToken } from '../middleware/verification.js';
 
 const route = express.Router();
 
-route.post("/create", register);
+route.post("/register", register);
 route.get("/verify/:token" , verifyToken);
 
 export default route;
