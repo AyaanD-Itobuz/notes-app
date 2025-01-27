@@ -4,11 +4,11 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv/config'
 import sendEmail from "../emailVerify/userEmailVerification.js";
 
-const generateToken = (name) => {
+const generateToken = (userId) => {
     
     const secretKey = process.env.SECRET_KEY;
 
-    const token = jwt.sign({name} , secretKey , { expiresIn : 60 * 60 })
+    const token = jwt.sign({ userId } , secretKey , { expiresIn : 60 * 60 })
 
     // console.log(token);
 
@@ -18,8 +18,8 @@ const generateToken = (name) => {
 
 export const register = async (req, res) => {
     try {
-        const { userName, email, password,token} = req.body;
-        const name = req.body;
+        const { userName, email, password } = req.body;
+        const body = req.body;
 
         //checking for existing user
         const userExists = await userSchema.findOne({ email });
@@ -31,27 +31,38 @@ export const register = async (req, res) => {
         //creating new user
         // const data = await userSchema.create({ userName, email, password, verified: false });
 
-        const verification_token = generateToken(name);
-        console.log(verification_token);
         
 
         const userData = await userSchema.create({
             userName,
             email,
             password,
-            token : verification_token
         });
+
+        const verification_token = generateToken(userData._id);
+
+        await userSchema.updateOne({
+            $where: {
+               _id: userData._id
+            },
+            data: {
+                token: verification_token
+            }
+        })
+
 
         
         if (userData) 
         {
             // const verificationUrl = `${req.protocol}://${req.get('host')}/verify/${verification_token}`;
             // const msg = `Please click to verify your email ${verificationUrl}`
-            await sendEmail(verification_token)
+            await sendEmail(verification_token, email)
 
             res.json({
                 status: 200,
-                data: userData,
+                data: {
+                    id: userData._id,
+                },
                 message: "User Created"
             });
             // console.log("Token : " + verification_token);
@@ -67,5 +78,3 @@ export const register = async (req, res) => {
         console.log(error)
     }
 }
-
-

@@ -19,5 +19,3 @@ app.listen(port, () => {
 });
 
 dbConnect();
-
-
