@@ -5,20 +5,19 @@ import dotenv from 'dotenv/config'
 import sendEmail from "../emailVerify/userEmailVerification.js";
 import bcrypt from 'bcrypt';
 import { hash } from "crypto";
+import { LOADIPHLPAPI } from "dns/promises";
 
 const generateToken = (userId) => {
 
     const secretKey = process.env.SECRET_KEY;
 
-    const token = jwt.sign({ userId }, secretKey, { expiresIn: "10m" })
-
-    // console.log(token);
+    const token = jwt.sign({ userId }, secretKey, { expiresIn: "1m" })
 
     return token;
 }
 
 
-export const register = async (req , res) => {
+export const register = async (req, res) => {
     try {
         const { userName, email, password } = req.body;
         const body = req.body;
@@ -82,6 +81,59 @@ export const register = async (req , res) => {
     }
 }
 
-export const login = async(req , res) => {
-    
+export const login = async (req, res) => {
+    try {
+        const email = req.body.email;
+        const pws = req.body.password;
+
+        // console.log(email);
+        // console.log(pws);
+
+
+        const fetchData = await userSchema.findOne( {email} );
+        console.log(fetchData.password)
+
+        bcrypt.compare(
+            pws,
+            fetchData.password,
+            (err, isMatch) => {
+              if (err) {
+                return res.status(500).json({
+                  success: false,
+                  message: err.message,
+                  data: "Error comparing passwords",
+                });
+              }
+      
+              if (!isMatch) {
+                return res.status(400).json({
+                  success: false,
+                  message: "Passwords do not match",
+                  data: "The password you entered is incorrect",
+                });
+              } else {
+                if (fetchData.verified) {
+                  const accessToken = generateToken(fetchData._id);
+                  console.log("accesstoken generated", accessToken);
+                  res.status(201).json({
+                    success: true,
+                    message: "User loggedin successfully.",
+                  });
+                } else {
+                  res.status(400).json({
+                    success: false,
+                    data: "user is not verified",
+                  });
+                }
+              }
+            }
+          );
+    }
+
+    catch (error) {
+        res.json({
+            message: "" + error
+        })
+    }
 }
+
