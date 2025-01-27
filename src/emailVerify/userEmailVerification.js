@@ -14,8 +14,8 @@ const sendEmail = async(msg, to) =>
         }
     });
 
-    console.log(process.env.EMAIL_ID);
-    console.log(process.env.EMAIL_PASS);
+    // console.log(process.env.EMAIL_ID);
+    // console.log(process.env.EMAIL_PASS);
     
 
     let mailDetails = {

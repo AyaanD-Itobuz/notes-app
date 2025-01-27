@@ -3,12 +3,14 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv/config'
 import sendEmail from "../emailVerify/userEmailVerification.js";
+import bcrypt from 'bcrypt';
+import { hash } from "crypto";
 
 const generateToken = (userId) => {
-    
+
     const secretKey = process.env.SECRET_KEY;
 
-    const token = jwt.sign({ userId } , secretKey , { expiresIn : 60 * 60 })
+    const token = jwt.sign({ userId }, secretKey, { expiresIn: "10m" })
 
     // console.log(token);
 
@@ -16,11 +18,11 @@ const generateToken = (userId) => {
 }
 
 
-export const register = async (req, res) => {
+export const register = async (req , res) => {
     try {
         const { userName, email, password } = req.body;
         const body = req.body;
-
+        // const pws = req.body
         //checking for existing user
         const userExists = await userSchema.findOne({ email });
 
@@ -28,32 +30,33 @@ export const register = async (req, res) => {
             throw new Error("User Already Exists");
         }
 
+
+
+        //hashing password 
+        const salt = 10;
+        const hashedPws = await bcrypt.hash(password, salt);
+        console.log(hashedPws);
+
+
         //creating new user
-        // const data = await userSchema.create({ userName, email, password, verified: false });
-
-        
-
         const userData = await userSchema.create({
             userName,
             email,
-            password,
+            password: hashedPws
         });
 
         const verification_token = generateToken(userData._id);
 
         await userSchema.updateOne({
             $where: {
-               _id: userData._id
+                _id: userData._id
             },
             data: {
                 token: verification_token
             }
         })
 
-
-        
-        if (userData) 
-        {
+        if (userData) {
             // const verificationUrl = `${req.protocol}://${req.get('host')}/verify/${verification_token}`;
             // const msg = `Please click to verify your email ${verificationUrl}`
             await sendEmail(verification_token, email)
@@ -66,7 +69,7 @@ export const register = async (req, res) => {
                 message: "User Created"
             });
             // console.log("Token : " + verification_token);
-            
+
         }
     }
 
@@ -77,4 +80,8 @@ export const register = async (req, res) => {
         })
         console.log(error)
     }
+}
+
+export const login = async(req , res) => {
+    
 }
