@@ -22,7 +22,7 @@ const verifyToken = async (req, res) => {
                 { $set: { verified: "true", token: null } },
                 { new: true }
             );
-            res.send("Email verified successfully hi");
+            res.send("Email verified successfully, hi");
     });
 };
 

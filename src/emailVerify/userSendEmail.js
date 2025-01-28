@@ -14,12 +14,8 @@ const sendEmail = async(msg, to) =>
         }
     });
 
-    // console.log(process.env.EMAIL_ID);
-    // console.log(process.env.EMAIL_PASS);
-    
-
     let mailDetails = {
-        // from: process.env.EMAIL_ID,
+        from: process.env.EMAIL_ID,
         to: process.env.EMAIL_ID,
         subject: 'Verification Mail',
         html:`<p>Hello, verify your email address by clicking on this</p>

@@ -15,11 +15,17 @@ const userSchema = new mongoose.Schema({
     password : {
         type : String,
         require : true
+        // select : false
     },
 
     verified : {
         type : Boolean,
         default : false 
+    },
+
+    isLoggedIn : {
+        type : Boolean,
+        default : false
     },
 
     token : {
