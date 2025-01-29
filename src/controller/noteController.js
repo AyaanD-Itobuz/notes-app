@@ -131,7 +131,9 @@ export const searchNote = async (req, res) => {
   try {
     const value = req.body.value;
 
-    const data = await notesSchema.find({ title: { $regex: value } } && { userId: req.userId });
+    // const data = await notesSchema.find({ title: { $regex: value , $options: "i"} } && { userId: req.userId });
+    
+    const data = await notesSchema.find({ userId: req.userId ,  title: { $regex: value , $options: "i" }});
 
     if (data) {
       console.log(data);
