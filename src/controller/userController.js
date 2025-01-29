@@ -1,22 +1,16 @@
 import userSchema from "../models/userSchema.js";
-import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+
+// import nodemailer from "nodemailer";
 import dotenv from "dotenv/config";
 import sendEmail from "../emailVerify/userSendEmail.js";
 import bcrypt from "bcrypt";
-import { hash } from "crypto";
-import { LOADIPHLPAPI } from "dns/promises";
-import { log } from "console";
+import generateToken from "../middleware/generateToken.js";
+// import decodeToken from "../middleware/decodeToken.js";
 
-const generateToken = (userId) => {
-  const secretKey = process.env.SECRET_KEY;
+let accessToken = "";
 
-  const token = jwt.sign({ userId }, secretKey, { expiresIn: "1m" });
 
-  return token;
-};
-
-export const register = async (req, res) => {
+export const register = async (req , res) => {
   try {
     const { userName, email, password } = req.body;
     const body = req.body;
@@ -31,7 +25,7 @@ export const register = async (req, res) => {
     //hashing password
     const salt = 10;
     const hashedPws = await bcrypt.hash(password, salt);
-    console.log(hashedPws);
+    // console.log(hashedPws);
 
     //creating new user
     const userData = await userSchema.create({
@@ -52,8 +46,6 @@ export const register = async (req, res) => {
     });
 
     if (userData) {
-      // const verificationUrl = `${req.protocol}://${req.get('host')}/verify/${verification_token}`;
-      // const msg = `Please click to verify your email ${verificationUrl}`
       await sendEmail(verification_token, email);
 
       res.json({
@@ -74,7 +66,7 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req , res) => {
   try {
     const email = req.body.email;
     const pws = req.body.password;
@@ -102,13 +94,14 @@ export const login = async (req, res) => {
         });
       } else {
         if (fetchData.verified) {
-          const accessToken = generateToken(fetchData._id);
+          accessToken = generateToken(fetchData._id);
           
           // console.log("accesstoken generated", accessToken);
           fetchData.isLoggedIn = true;
           fetchData.save();
 
           res.status(201).json({
+            token: accessToken,
             success: true,
             message: "User loggedin successfully.",
           });
@@ -129,3 +122,9 @@ export const login = async (req, res) => {
     });
   }
 };
+
+// export const createNote = async (req , res) => {
+//   const decoded_Token = decodeToken(accessToken);
+//   console.log("Access Token : ",accessToken)
+//   console.log("Decoded Token",decoded_Token.userId);
+// };

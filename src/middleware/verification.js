@@ -4,12 +4,14 @@ import userSchema from "../models/userSchema.js";
 
 
 const verifyToken = async (req, res) => {
-    const { token } = req.params;
-    console.log("Into the function")
+    // const { token } = req.params; //For getting the token from the URL
+    const authHeader = String(req.headers["authorization"])
+    const token = authHeader.split(' ')[1]
+
     if (!token) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    console.log("token" , token);
+    // console.log("token" , token);
     
     jwt.verify(token, process.env.SECRET_KEY, async (error, decoded) => {
         console.log(decoded);

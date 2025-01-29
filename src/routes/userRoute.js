@@ -12,8 +12,8 @@ import { validateLogin } from '../middleware/validate.js';
 const route = express.Router();
 
 route.post("/register",validateLogin(userLoginSchema), register);
-route.get("/verify/:token", verifyToken);
-route.post("/login" , login)
-// route.post(validateLogin(userLoginSchema))
+// route.get("/verify/:token", verifyToken); //For getting the token from URL
+route.get("/verify", verifyToken);
+route.post("/login" , login);
 
 export default route;
