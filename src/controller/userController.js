@@ -1,11 +1,9 @@
 import userSchema from "../models/userSchema.js";
-
-// import nodemailer from "nodemailer";
+import sessionSchema from "../models/sessionSchema.js"
 import dotenv from "dotenv/config";
 import sendEmail from "../emailVerify/userSendEmail.js";
 import bcrypt from "bcrypt";
 import generateToken from "../middleware/generateToken.js";
-// import decodeToken from "../middleware/decodeToken.js";
 
 
 export const register = async (req , res) => {
@@ -45,7 +43,6 @@ export const register = async (req , res) => {
 
     if (userData) {
       await sendEmail(verification_token, email);
-
       res.json({
         status: 200,
         data: {
@@ -96,6 +93,9 @@ export const login = async (req , res) => {
           const refreshToken = generateToken(fetchData._id , "7d");
 
           // console.log("accesstoken generated", accessToken);
+
+          // const sessionData = await sessionSchema.create({user_id});
+
           fetchData.isLoggedIn = true;
           fetchData.save();
 
@@ -103,7 +103,7 @@ export const login = async (req , res) => {
             token: accessToken,
             refreshToken : refreshToken,
             success: true,
-            message: "User loggedin successfully.",
+            message: "User loggedin successfully and Session updated",
           });
           
           
