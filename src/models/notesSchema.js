@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const notesSchema = new mongoose.Schema({
     title : {
         type : String,
-        required : true,
+        required : true
+        // timestamps: true
     },
 
     content : {
@@ -15,7 +16,13 @@ const notesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user',
         required: true
+    },
+
+    createdAt: {
+        type : Date,
+        default : Date.now()
     }
+    
 })
 
 export default mongoose.model("notesDB" , notesSchema);

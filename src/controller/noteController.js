@@ -129,10 +129,7 @@ export const getAllNote = async (req, res) => {
 
 export const searchNote = async (req, res) => {
   try {
-    const value = req.body.value;
-
-    // const data = await notesSchema.find({ title: { $regex: value , $options: "i"} } && { userId: req.userId });
-    
+    const value = req.body.value;    
     const data = await notesSchema.find({ userId: req.userId ,  title: { $regex: value , $options: "i" }});
 
     if (data) {
@@ -155,5 +152,51 @@ export const searchNote = async (req, res) => {
       message: "Error Occured : " + error
     })
   }
+}
 
+export const sortNote_title = async(req , res) => {
+  try {
+    const validSortFields = ["title" , "content" , "createdAt"];
+    const validSortOrder = ["asc" , "desc"]
+
+    const { sortField, sortOrder } = req.query;
+
+    if (!validSortFields.includes(sortField)) {
+        return res.status(400).json({
+            status: 400,
+            message: "Invalid sort field"
+        });
+    }
+
+    if (!validSortOrder.includes(sortOrder)) {
+        return res.status(400).json({
+            status: 400,
+            message: "Invalid sort order"
+        });
+    }
+
+    const sortCriteria = { [sortField]: sortOrder === 'asc' ? 1 : -1 };
+
+    const sortedData = await notesSchema.find({userId : req.userId}).sort(sortCriteria);
+
+    if (sortedData.length > 0) {
+        return res.json({
+            status: 200,
+            data: sortedData,
+            message: "Data Sorted"
+        });
+    } else {
+        return res.json({
+            status: 404,
+            message: "No data found"
+        });
+    }
+  }
+  catch(error){
+    res.json({
+      status : 400,
+      error : error.message,
+      message : "Error occured"
+    })
+  }
 }
