@@ -200,3 +200,34 @@ export const sortNote_title = async(req , res) => {
     })
   }
 }
+
+export const paginationNote = async(req , res) => {
+  try{
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 5;
+
+    const offset = (page - 1) * limit;
+    console.log(page, limit , offset);
+    const data = await notesSchema.find({userId : req.userId})
+    .sort({ createdAt : -1 })
+    .skip(offset)
+    .limit(limit)
+    .exec();
+
+    if(data)
+    {
+      res.json({
+        status : 200,
+        data,
+        total : await notesSchema.find({userId : req.userId}).countDocuments()
+      })
+    }
+  }
+  catch(error)
+  {
+    res.json({
+      status : 400,
+      message : "Error Occured" + error
+    })
+  }
+}
