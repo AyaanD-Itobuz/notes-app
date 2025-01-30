@@ -7,8 +7,6 @@ import bcrypt from "bcrypt";
 import generateToken from "../middleware/generateToken.js";
 // import decodeToken from "../middleware/decodeToken.js";
 
-let accessToken = "";
-
 
 export const register = async (req , res) => {
   try {
@@ -34,7 +32,7 @@ export const register = async (req , res) => {
       password: hashedPws,
     });
 
-    const verification_token = generateToken(userData._id);
+    const verification_token = generateToken(userData._id , "5m");
 
     await userSchema.updateOne({
       $where: {
@@ -94,14 +92,16 @@ export const login = async (req , res) => {
         });
       } else {
         if (fetchData.verified) {
-          accessToken = generateToken(fetchData._id);
-          
+          const accessToken = generateToken(fetchData._id , "5s");
+          const refreshToken = generateToken(fetchData._id , "7d");
+
           // console.log("accesstoken generated", accessToken);
           fetchData.isLoggedIn = true;
           fetchData.save();
 
           res.status(201).json({
             token: accessToken,
+            refreshToken : refreshToken,
             success: true,
             message: "User loggedin successfully.",
           });
@@ -122,9 +122,3 @@ export const login = async (req , res) => {
     });
   }
 };
-
-// export const createNote = async (req , res) => {
-//   const decoded_Token = decodeToken(accessToken);
-//   console.log("Access Token : ",accessToken)
-//   console.log("Decoded Token",decoded_Token.userId);
-// };

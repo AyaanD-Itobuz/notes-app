@@ -16,7 +16,7 @@ const verifyToken = async (req, res) => {
     jwt.verify(token, process.env.SECRET_KEY, async (error, decoded) => {
         console.log(decoded);
         if (error) {
-            console.log(error);
+            console.log(error.message);
             return res.status(401).json({ error: "Email verification failed, possibly the link is invalid or expired" });
         } 
             await userSchema.findOneAndUpdate(

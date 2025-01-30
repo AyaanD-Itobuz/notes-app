@@ -11,39 +11,18 @@ export const decodeToken = async(req , res , next) => {
     
     if(!accessToken)
     {
-        return res.status(401).json({message : "Token not Found"})
+        return res.status(400).json({message : "Token not Found"})
     }
 
     jwt.verify(accessToken, process.env.SECRET_KEY, async (error, decoded) => {
-        console.log("decoded: ",decoded.userId);
+        console.log("decoded: ",decoded);
+        
         if(error)
         {
             console.log(error);
-            return res.status(401).json({error : "Token is invalid"});
+            return res.status(401).json({error : error.message , message : "Token expired generate a new Token"});
         }
         req.userId = decoded.userId;
         next();
     });
 }
-
-
-
-
-
-// async function decodeToken(accessToken) {
-//     jwt.verify(accessToken, process.env.SECRET_KEY, async (error, decoded) => {
-//         console.log(decoded);
-//         if (error) {
-//             console.log(error);
-//             return res.status(401).json({ error: "Token is invalid" });
-//         } 
-
-//         await userSchema.findOneAndUpdate(
-//             { _id: decoded.userId },
-//             { $set: { verified: "true", token: null } },
-//             { new: true }
-//         );
-//         res.send("Email verified successfully, hi");
-//     });
-// }
-
