@@ -28,22 +28,37 @@ export const verifyRefreshToken = async(req , res, next) => {
 
 
 export const generateAccessToken = async(req , res) => {
-    const userId = req.userId;
-    const refreshToken = String(String(req.headers.authorization).split(' ')[1])
-    
-    if(refreshToken)
-    {
-        const newAccessToken = generateToken(userId , "1m");
-
-        if (newAccessToken)
+    try {
+        const userId = req.userId;
+        const refreshToken = String(String(req.headers.authorization).split(' ')[1])
+        
+        if(refreshToken)
         {
-            res.status(201).json({
-            token: newAccessToken,
-            refreshToken : refreshToken,
-            success: true,
-            message: "User loggedin successfully.",
-          });
+            const newAccessToken = generateToken(userId , "1m");
+    
+            if (newAccessToken)
+            {
+                res.status(201).json({
+                token: newAccessToken,
+                refreshToken : refreshToken,
+                success: true,
+                message: "User loggedin successfully.",
+              });
+            }
+            else 
+            {
+                res.json({
+                    status : 400,
+                    message : "New Token Not generated"
+                })
+            }
         }
+        
+    } catch (error) {
+        res.json({
+            status : 400,
+            message : "Error Occured" + error.message
+        })
     }
 }
 
