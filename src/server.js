@@ -9,6 +9,9 @@ import notesRoute from "./routes/notesRoute.js";
 const app = express();
 app.use(express.json());
 
+//File saving as static
+app.use("/uploads" , express.static("uploads"))
+
 dotenv.config({ path: '.env' });
 
 const port = process.env.PORT;

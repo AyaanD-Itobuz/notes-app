@@ -1,15 +1,16 @@
 import userSchema from "../models/userSchema.js";
 import sessionSchema from "../models/sessionSchema.js"
-import dotenv from "dotenv/config";
 import sendEmail from "../emailVerify/userSendEmail.js";
 import bcrypt from "bcrypt";
 import generateToken from "../middleware/generateToken.js";
+import { config } from "dotenv";
+
+config(); 
 
 
 export const register = async (req , res) => {
   try {
     const { userName, email, password } = req.body;
-    const body = req.body;
     // const pws = req.body
     //checking for existing user
     const userExists = await userSchema.findOne({ email });
@@ -61,23 +62,17 @@ export const register = async (req , res) => {
   }
 };
 
-export const login = async (req , res) => {
+export const login = async (req , res , next) => {
   try {
     const email = req.body.email;
     const pws = req.body.password;
-    let user_log_status = false;
-    // console.log(email);
-    // console.log(pws);
-
     const fetchData = await userSchema.findOne({ email });
-    // console.log(fetchData.password);
 
     bcrypt.compare(pws, fetchData.password, (err, isMatch) => {
       if (err) {
         return res.status(500).json({
           success: false,
           message: err.message,
-          // data: "Error comparing passwords",
         });
       }
 
@@ -85,19 +80,15 @@ export const login = async (req , res) => {
         return res.status(400).json({
           success: false,
           message: "Authentication Error",
-          // data: "Incorrect Password",
         });
       } else {
         if (fetchData.verified) {
           const accessToken = generateToken(fetchData._id , "5s");
           const refreshToken = generateToken(fetchData._id , "7d");
 
-          // console.log("accesstoken generated", accessToken);
-
-          // const sessionData = await sessionSchema.create({user_id});
-
           fetchData.isLoggedIn = true;
           fetchData.save();
+
 
           res.status(201).json({
             token: accessToken,
@@ -115,10 +106,59 @@ export const login = async (req , res) => {
         }
       }
     });
+    req.userId = fetchData._id;
+    next();
   }
   catch (error) {
     res.json({
       message: "" + error,
     });
+  }
+};
+
+export const createSession = async( req , res ) => {
+  try 
+  {
+    await sessionSchema.create({userId : req.userId});
+
+  }
+  catch(error)
+  {
+    res.json({
+      status : 400,
+      message : "Session Not Created",
+      error : "" + error.message
+    })
+  }
+};
+
+export const deleteSession = async( req , res ) => {
+  try {
+    const userId = req.body.userId;
+    const data = await sessionSchema.deleteMany({userId});
+    const fetchData = await userSchema.findOne({_id : userId});
+
+    if(data)
+    {
+      fetchData.isLoggedIn = false;
+      fetchData.save(); 
+      res.json({
+        status : 400,
+        message : "All Sessions Deleted Successfully"
+      })
+    }
+
+    else {
+      res.json({
+        status : 200,
+        message : "No Session Found"
+      })
+    }
+  }
+  catch(error) {
+    res.json({
+      status : 200,
+      message : "Error Occured: " + error.message
+    })
   }
 };

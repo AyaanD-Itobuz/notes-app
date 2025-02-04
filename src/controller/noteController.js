@@ -1,6 +1,6 @@
 import notesSchema from "../models/notesSchema.js";
-import jwt from "jsonwebtoken"
-
+import multer from "multer";
+import path from "path";
 
 export const createNote = async (req, res) => {
   try {
@@ -65,7 +65,8 @@ export const deleteNote = async (req, res) => {
   catch (error) {
     res.json({
       status: 200,
-      message: "Data Not Found"
+      message: "Data Not Found",
+      error : error.message
     })
   }
 };
@@ -93,11 +94,12 @@ export const updateNote = async (req, res) => {
   catch (error) {
     res.json({
       status: 200,
-      message: "Data not Found"
+      message: "Data not Found",
+      error : error.message
     })
   }
 
-}
+};
 
 export const getAllNote = async (req, res) => {
   try {
@@ -122,10 +124,11 @@ export const getAllNote = async (req, res) => {
   catch (error) {
     res.json({
       status: 400,
-      message: "Data Not Found"
+      message: "Data Not Found",
+      error : error.message
     })
   }
-}
+};
 
 export const searchNote = async (req, res) => {
   try {
@@ -152,7 +155,7 @@ export const searchNote = async (req, res) => {
       message: "Error Occured : " + error
     })
   }
-}
+};
 
 export const sortNote_title = async(req , res) => {
   try {
@@ -199,7 +202,7 @@ export const sortNote_title = async(req , res) => {
       message : "Error occured"
     })
   }
-}
+};
 
 export const paginationNote = async(req , res) => {
   try{
@@ -230,4 +233,55 @@ export const paginationNote = async(req , res) => {
       message : "Error Occured" + error
     })
   }
-}
+};
+
+//File Upload 
+const storage = multer.diskStorage({
+  destination: "./uploads",
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+      
+    );
+  },
+});
+
+export const fileUpload = async (req, res) => {
+  try {    
+    const id = req.params.id;
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    const data = await notesSchema.findOne({_id : id});
+
+    if (data) {      
+      data.file = "http://localhost:8000/" + req.file.path;
+      await data.save();
+      return res.status(200).json({
+        success: true,
+        message: `File uploaded successfully : ${req.file.filename}`,
+      });
+
+    } 
+    else {
+      return res.status(500).json({
+        success: false,
+        message: "Schema Not found",
+      });
+    }
+
+  } catch (error) {
+    res.json({
+      status: 404,
+      message: "Error while Uploading File",
+      error: error.message,
+    });
+  }
+};
+
+export const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 }, // 1MB file size limit  
+});

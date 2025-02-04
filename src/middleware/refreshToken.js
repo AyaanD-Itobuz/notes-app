@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken"
-import dotenv from "dotenv/config"
 import generateToken from "../middleware/generateToken.js"
+import { config } from "dotenv";
+
+config(); 
 
 export const verifyRefreshToken = async(req , res, next) => {
-    console.log("Refresh Token Fetched from Postman")
     let token = String(String(req.headers.authorization).split(" ")[1])
-    console.log(token)
+    // console.log(token)
 
     if(!token)
     {
@@ -13,7 +14,7 @@ export const verifyRefreshToken = async(req , res, next) => {
     }
 
     jwt.verify(token , process.env.SECRET_KEY , async(error , decoded) => {
-        console.log("Decoded Refresh Token: " , decoded);
+        // console.log("Decoded Refresh Token: " , decoded);
         if(error)
         {
             res.json({
@@ -34,7 +35,7 @@ export const generateAccessToken = async(req , res) => {
         
         if(refreshToken)
         {
-            const newAccessToken = generateToken(userId , "1m");
+            const newAccessToken = generateToken(userId , "1hr");
     
             if (newAccessToken)
             {

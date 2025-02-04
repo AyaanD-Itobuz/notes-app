@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
-import dotenv from "dotenv";
+import { config } from "dotenv";
+
+config(); 
 
 
 const sendEmail = async(msg, to) => 
@@ -16,7 +18,8 @@ const sendEmail = async(msg, to) =>
 
     let mailDetails = {
         from: process.env.EMAIL_ID,
-        to: process.env.EMAIL_ID,
+        // to: process.env.EMAIL_ID,
+        to: to,
         subject: 'Verification Mail',
         html:`<p>Hello, verify your email address by clicking on this</p>
         <br>
@@ -24,7 +27,7 @@ const sendEmail = async(msg, to) =>
     };
     
     mailTransporter.sendMail(mailDetails,
-            function (err, data) {
+            function (err) {
                 if (err) {
                     console.log('Error Occurs: ' + err);
                     

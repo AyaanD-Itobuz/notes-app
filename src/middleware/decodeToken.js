@@ -1,12 +1,13 @@
 import jwt from "jsonwebtoken";
 // import { jwtDecode } from "jwt-decode";
-import dotenv from "dotenv/config"
+import { config } from "dotenv";
+
+config(); 
 
 export const decodeToken = async(req , res , next) => {
 
     let accessToken = String(req.headers.authorization);
     accessToken = String(accessToken.split(' ')[1]);
-    console.log(accessToken);
 
     
     if(!accessToken)
@@ -14,9 +15,7 @@ export const decodeToken = async(req , res , next) => {
         return res.status(400).json({message : "Token not Found"})
     }
 
-    jwt.verify(accessToken, process.env.SECRET_KEY, async (error, decoded) => {
-        console.log("decoded: ",decoded);
-        
+    jwt.verify(accessToken, process.env.SECRET_KEY, async (error, decoded) => {        
         if(error)
         {
             console.log(error);

@@ -18,6 +18,10 @@ const notesSchema = new mongoose.Schema({
         required: true
     },
 
+    file : {
+        type : String
+    },
+
     createdAt: {
         type : Date,
         default : Date.now()

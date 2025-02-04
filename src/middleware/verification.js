@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv/config"
 import userSchema from "../models/userSchema.js";
+import { config } from "dotenv";
+
+config(); 
 
 
 const verifyToken = async (req, res) => {
