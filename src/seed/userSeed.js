@@ -19,10 +19,14 @@ export const userSeed = async(number) => {
             fakeUsers.push(newUser);
         }
 
-        //Creating entries in Schema
-        fakeUsers.forEach( async(e) => {
-            await userSchema.create(e);
-        })
+        try {
+            await userSchema.insertMany(fakeUsers);
+        }
+        catch(error){
+            console.log("Error Occured: " , error)
+        }
+
+        console.log(`${number} Fake Users Created`)
 
     }
     catch(error)
